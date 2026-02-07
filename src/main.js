@@ -1,8 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
 
-// Initialize Supabase Client
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Initialize Supabase Client with proper session persistence
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+        persistSession: true,
+        storageKey: 'xmat-auth',
+        storage: window.localStorage,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+    }
+});
 
 // Edge Function URL for secure API calls
 const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/search-number`;
@@ -57,12 +65,20 @@ async function initApp() {
         showLogin();
     }
 
-    // Auth state listener
+    // Auth state listener - only handle actual sign in/out, not session refresh
     supabase.auth.onAuthStateChange(async (event, session) => {
+        // Skip initial session and token refresh events to avoid flicker
+        if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
+            return;
+        }
+
         if (event === 'SIGNED_IN' && session) {
-            currentUser = session.user;
-            await loadUserProfile();
-            showDashboard();
+            // Only reload if user actually changed
+            if (!currentUser || currentUser.id !== session.user.id) {
+                currentUser = session.user;
+                await loadUserProfile();
+                showDashboard();
+            }
         } else if (event === 'SIGNED_OUT') {
             currentUser = null;
             userProfile = null;
