@@ -576,15 +576,24 @@ async function loadSessionLogs() {
         return;
     }
 
-    sessionsList.innerHTML = data.map(session => `
-        <div class="session-item">
-            <div class="session-user">${session.nd_users?.full_name || 'Unknown'}</div>
-            <div class="session-ip">${session.ip_address}</div>
-            <div class="session-location">${session.city}, ${session.region}, ${session.country}</div>
-            <div class="session-isp">${session.isp}</div>
-            <div class="session-time">${formatTime(session.created_at)}</div>
-        </div>
-    `).join('');
+    sessionsList.innerHTML = data.map(session => {
+        const name = session.nd_users?.full_name || 'Unknown';
+        const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        return `
+            <div class="session-item">
+                <div class="session-avatar">${initials}</div>
+                <div class="session-info">
+                    <div class="session-user">${name}</div>
+                    <div class="session-location">${session.city || 'Unknown'}, ${session.country || 'Unknown'}</div>
+                </div>
+                <div class="session-meta">
+                    <div class="session-ip">${session.ip_address}</div>
+                    <div class="session-isp">${session.isp || 'Unknown ISP'}</div>
+                    <div class="session-time">${formatTime(session.created_at)}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 // ===== ANONYMOUS CHAT FUNCTIONS =====
