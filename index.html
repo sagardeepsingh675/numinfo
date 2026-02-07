@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Number Detail Search - Find phone number information instantly">
+    <title>Number Detail Search</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Animated Background -->
+        <div class="bg-animation">
+            <div class="bg-gradient"></div>
+            <div class="bg-particles"></div>
+        </div>
+
+        <!-- Login Page -->
+        <div id="login-page" class="page active">
+            <div class="login-container">
+                <div class="login-card glass-card">
+                    <div class="login-header">
+                        <div class="logo">
+                            <div class="logo-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <path d="m21 21-4.35-4.35"/>
+                                </svg>
+                            </div>
+                            <h1>Number Search</h1>
+                        </div>
+                        <p class="subtitle">Find detailed information about any phone number</p>
+                    </div>
+                    <form id="login-form" class="login-form">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <div class="input-wrapper">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                                    <path d="m22 7-10 6L2 7"/>
+                                </svg>
+                                <input type="email" id="email" placeholder="Enter your email" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <div class="input-wrapper">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                                <input type="password" id="password" placeholder="Enter your password" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-login">
+                            <span>Sign In</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </form>
+                    <div id="login-error" class="error-message"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="page">
+            <nav class="navbar glass-nav">
+                <div class="nav-brand">
+                    <div class="logo-icon small">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                    </div>
+                    <span>Number Search</span>
+                </div>
+                <div class="nav-links">
+                    <button class="nav-link active" data-page="search">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                        <span>Search</span>
+                    </button>
+                    <button class="nav-link" data-page="history">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                        <span>History</span>
+                    </button>
+                    <button class="nav-link" data-page="admin" id="admin-nav-btn" style="display: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 20h9"/>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                        </svg>
+                        <span>Admin</span>
+                    </button>
+                </div>
+                <div class="nav-user">
+                    <span id="user-name">User</span>
+                    <button id="logout-btn" class="btn btn-ghost">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16,17 21,12 16,7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </nav>
+
+            <main class="main-content">
+                <!-- Search Section -->
+                <section id="search-section" class="section active">
+                    <div class="section-header">
+                        <h2>Search Phone Number</h2>
+                        <p>Enter a 10-digit mobile number to get detailed information</p>
+                    </div>
+                    <div class="search-box glass-card">
+                        <form id="search-form">
+                            <div class="search-input-wrapper">
+                                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <path d="m21 21-4.35-4.35"/>
+                                </svg>
+                                <input type="tel" id="search-number" placeholder="Enter 10-digit mobile number" maxlength="10" pattern="[0-9]{10}" required>
+                                <button type="submit" class="btn btn-primary btn-search">
+                                    <span>Search</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Results Container -->
+                    <div id="results-container" class="results-container"></div>
+                    <div id="search-loading" class="loading-state" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Searching for number details...</p>
+                    </div>
+                </section>
+
+                <!-- History Section -->
+                <section id="history-section" class="section">
+                    <div class="section-header">
+                        <h2>Search History</h2>
+                        <p>View all your previous searches</p>
+                    </div>
+                    <div id="history-container" class="history-container"></div>
+                    <div id="history-loading" class="loading-state" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Loading history...</p>
+                    </div>
+                </section>
+
+                <!-- Admin Section -->
+                <section id="admin-section" class="section">
+                    <div class="section-header">
+                        <h2>Admin Panel</h2>
+                        <p>Manage users and view analytics</p>
+                    </div>
+                    
+                    <div class="admin-tabs">
+                        <button class="admin-tab active" data-tab="users">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                            Users
+                        </button>
+                        <button class="admin-tab" data-tab="add-user">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="8.5" cy="7" r="4"/>
+                                <line x1="20" y1="8" x2="20" y2="14"/>
+                                <line x1="23" y1="11" x2="17" y2="11"/>
+                            </svg>
+                            Add User
+                        </button>
+                        <button class="admin-tab" data-tab="logs">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14,2 14,8 20,8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10,9 9,9 8,9"/>
+                            </svg>
+                            Search Logs
+                        </button>
+                    </div>
+
+                    <!-- Users Tab -->
+                    <div id="users-tab" class="admin-content active">
+                        <div id="users-list" class="users-grid"></div>
+                    </div>
+
+                    <!-- Add User Tab -->
+                    <div id="add-user-tab" class="admin-content">
+                        <div class="add-user-form glass-card">
+                            <h3>Create New User</h3>
+                            <form id="add-user-form">
+                                <div class="form-group">
+                                    <label for="new-user-name">Full Name</label>
+                                    <input type="text" id="new-user-name" placeholder="Enter full name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="new-user-email">Email</label>
+                                    <input type="email" id="new-user-email" placeholder="Enter email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="new-user-password">Password</label>
+                                    <input type="password" id="new-user-password" placeholder="Enter password" required minlength="6">
+                                </div>
+                                <div class="form-group">
+                                    <label for="new-user-role">Role</label>
+                                    <select id="new-user-role">
+                                        <option value="user">User</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Create User</button>
+                            </form>
+                            <div id="add-user-message" class="message"></div>
+                        </div>
+                    </div>
+
+                    <!-- Logs Tab -->
+                    <div id="logs-tab" class="admin-content">
+                        <div id="logs-list" class="logs-container"></div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
