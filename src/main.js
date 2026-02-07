@@ -257,103 +257,17 @@ async function searchNumber(number) {
 
 function displayResults(results) {
     resultsContainer.innerHTML = results.map((item, index) => `
-        <div class="result-card" style="animation-delay: ${index * 0.1}s">
-            <div class="result-header">
-                <div class="result-avatar">${(item.name || 'U').charAt(0).toUpperCase()}</div>
-                <div class="result-title">
-                    <h3>${item.name || 'Unknown'}</h3>
-                    <p>Record #${index + 1}</p>
-                </div>
-            </div>
-            <div class="result-grid">
-                <div class="result-item">
-                    <div class="result-item-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/>
-                        </svg>
-                    </div>
-                    <div class="result-item-content">
-                        <div class="result-item-label">Mobile Number</div>
-                        <div class="result-item-value">${item.mobile || 'N/A'}</div>
-                    </div>
-                </div>
-                <div class="result-item">
-                    <div class="result-item-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
-                        </svg>
-                    </div>
-                    <div class="result-item-content">
-                        <div class="result-item-label">Father's Name</div>
-                        <div class="result-item-value">${item.father_name || 'N/A'}</div>
-                    </div>
-                </div>
-                <div class="result-item">
-                    <div class="result-item-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/>
-                        </svg>
-                    </div>
-                    <div class="result-item-content">
-                        <div class="result-item-label">Alternate Mobile</div>
-                        <div class="result-item-value">${item.alt_mobile || 'N/A'}</div>
-                    </div>
-                </div>
-                <div class="result-item">
-                    <div class="result-item-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                            <circle cx="12" cy="10" r="3"/>
-                        </svg>
-                    </div>
-                    <div class="result-item-content">
-                        <div class="result-item-label">Address</div>
-                        <div class="result-item-value">${formatAddress(item.address) || 'N/A'}</div>
-                    </div>
-                </div>
-                <div class="result-item">
-                    <div class="result-item-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                            <line x1="16" y1="2" x2="16" y2="6"/>
-                            <line x1="8" y1="2" x2="8" y2="6"/>
-                            <line x1="3" y1="10" x2="21" y2="10"/>
-                        </svg>
-                    </div>
-                    <div class="result-item-content">
-                        <div class="result-item-label">ID Number</div>
-                        <div class="result-item-value">${maskIdNumber(item.id_number) || 'N/A'}</div>
-                    </div>
-                </div>
-                <div class="result-item">
-                    <div class="result-item-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M2 12h20"/>
-                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                        </svg>
-                    </div>
-                    <div class="result-item-content">
-                        <div class="result-item-label">Circle/Operator</div>
-                        <div class="result-item-value">${item.circle || 'N/A'}</div>
-                    </div>
-                </div>
-                ${item.email ? `
-                <div class="result-item">
-                    <div class="result-item-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="4" width="20" height="16" rx="2"/>
-                            <path d="m22 7-10 6L2 7"/>
-                        </svg>
-                    </div>
-                    <div class="result-item-content">
-                        <div class="result-item-label">Email</div>
-                        <div class="result-item-value">${item.email}</div>
-                    </div>
-                </div>
-                ` : ''}
-            </div>
+        <div class="simple-result">
+            <table class="result-table">
+                <tr><td class="label">Name</td><td class="value">${item.name || 'N/A'}</td></tr>
+                <tr><td class="label">Father's Name</td><td class="value">${item.father_name || 'N/A'}</td></tr>
+                <tr><td class="label">Mobile</td><td class="value">${item.mobile || 'N/A'}</td></tr>
+                <tr><td class="label">Alt Mobile</td><td class="value">${item.alt_mobile || 'N/A'}</td></tr>
+                <tr><td class="label">Address</td><td class="value">${formatAddress(item.address) || 'N/A'}</td></tr>
+                <tr><td class="label">ID Number</td><td class="value">${item.id_number || 'N/A'}</td></tr>
+                <tr><td class="label">Circle</td><td class="value">${item.circle || 'N/A'}</td></tr>
+                ${item.email ? `<tr><td class="label">Email</td><td class="value">${item.email}</td></tr>` : ''}
+            </table>
         </div>
     `).join('');
 }
