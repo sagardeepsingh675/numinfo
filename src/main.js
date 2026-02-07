@@ -10,6 +10,8 @@ const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/search-number`;
 // State
 let currentUser = null;
 let userProfile = null;
+let currentConversation = null;
+let messageSubscription = null;
 
 // DOM Elements
 const loginPage = document.getElementById('login-page');
@@ -201,6 +203,8 @@ navLinks.forEach(link => {
         // Load data if needed
         if (page === 'history') {
             loadHistory();
+        } else if (page === 'chat') {
+            initChat();
         } else if (page === 'admin' && userProfile?.role === 'admin') {
             loadUsers();
             loadSearchLogs();
@@ -582,6 +586,272 @@ async function loadSessionLogs() {
         </div>
     `).join('');
 }
+
+// ===== ANONYMOUS CHAT FUNCTIONS =====
+const myChatIdEl = document.getElementById('my-chat-id');
+const copyChatIdBtn = document.getElementById('copy-chat-id');
+const newChatBtn = document.getElementById('new-chat-btn');
+const conversationsList = document.getElementById('conversations-list');
+const chatWelcome = document.getElementById('chat-welcome');
+const chatActive = document.getElementById('chat-active');
+const chatPartnerId = document.getElementById('chat-partner-id');
+const messagesContainer = document.getElementById('messages-container');
+const messageInput = document.getElementById('message-input');
+const sendMessageBtn = document.getElementById('send-message-btn');
+const newChatModal = document.getElementById('new-chat-modal');
+const closeModalBtn = document.getElementById('close-modal-btn');
+const searchUserIdInput = document.getElementById('search-user-id');
+const searchUserResult = document.getElementById('search-user-result');
+const startChatBtn = document.getElementById('start-chat-btn');
+
+let foundUserId = null;
+
+async function initChat() {
+    if (!userProfile) return;
+
+    // Generate chat_id if not exists
+    if (!userProfile.chat_id) {
+        const newChatId = generateChatId();
+        await supabase.from('nd_users').update({ chat_id: newChatId }).eq('id', currentUser.id);
+        userProfile.chat_id = newChatId;
+    }
+
+    myChatIdEl.textContent = userProfile.chat_id;
+    await loadConversations();
+}
+
+function generateChatId() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
+
+async function loadConversations() {
+    const { data, error } = await supabase
+        .from('nd_conversations')
+        .select('*')
+        .or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`)
+        .order('last_message_at', { ascending: false });
+
+    if (error || !data || data.length === 0) {
+        conversationsList.innerHTML = `
+            <div class="no-chats">
+                <p>No chats yet</p>
+                <p class="hint">Click "New Chat" to start</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Get partner chat IDs
+    const partnerIds = data.map(c => c.user1_id === currentUser.id ? c.user2_id : c.user1_id);
+    const { data: partners } = await supabase.from('nd_users').select('id, chat_id').in('id', partnerIds);
+    const partnerMap = {};
+    partners?.forEach(p => partnerMap[p.id] = p.chat_id);
+
+    conversationsList.innerHTML = data.map(conv => {
+        const partnerId = conv.user1_id === currentUser.id ? conv.user2_id : conv.user1_id;
+        const partnerChatId = partnerMap[partnerId] || 'Unknown';
+        return `
+            <div class="conversation-item" data-conv-id="${conv.id}" data-partner-id="${partnerId}" data-partner-chat-id="${partnerChatId}">
+                <div class="conversation-avatar">${partnerChatId.substring(0, 2)}</div>
+                <div class="conversation-info">
+                    <div class="conversation-id">${partnerChatId}</div>
+                    <div class="conversation-preview">${conv.last_message || 'No messages yet'}</div>
+                </div>
+                <div class="conversation-time">${formatTime(conv.last_message_at)}</div>
+            </div>
+        `;
+    }).join('');
+
+    // Add click handlers
+    document.querySelectorAll('.conversation-item').forEach(item => {
+        item.addEventListener('click', () => openChat(item.dataset.convId, item.dataset.partnerChatId));
+    });
+}
+
+async function openChat(convId, partnerChatId) {
+    currentConversation = convId;
+
+    // Update UI
+    chatWelcome.style.display = 'none';
+    chatActive.style.display = 'flex';
+    chatPartnerId.textContent = partnerChatId;
+
+    // Mark conversation as active
+    document.querySelectorAll('.conversation-item').forEach(c => c.classList.remove('active'));
+    document.querySelector(`[data-conv-id="${convId}"]`)?.classList.add('active');
+
+    // Load messages
+    await loadMessages(convId);
+
+    // Subscribe to new messages
+    subscribeToMessages(convId);
+}
+
+async function loadMessages(convId) {
+    const { data, error } = await supabase
+        .from('nd_messages')
+        .select('*')
+        .eq('conversation_id', convId)
+        .order('created_at', { ascending: true });
+
+    if (error || !data) {
+        messagesContainer.innerHTML = '<p class="no-chats">Error loading messages</p>';
+        return;
+    }
+
+    messagesContainer.innerHTML = data.map(msg => `
+        <div class="message ${msg.sender_id === currentUser.id ? 'sent' : 'received'}">
+            ${msg.content}
+            <div class="message-time">${formatTime(msg.created_at)}</div>
+        </div>
+    `).join('');
+
+    // Scroll to bottom
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function subscribeToMessages(convId) {
+    // Unsubscribe from previous
+    if (messageSubscription) {
+        messageSubscription.unsubscribe();
+    }
+
+    messageSubscription = supabase
+        .channel(`messages:${convId}`)
+        .on('postgres_changes', {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'nd_messages',
+            filter: `conversation_id=eq.${convId}`
+        }, (payload) => {
+            const msg = payload.new;
+            const msgEl = document.createElement('div');
+            msgEl.className = `message ${msg.sender_id === currentUser.id ? 'sent' : 'received'}`;
+            msgEl.innerHTML = `${msg.content}<div class="message-time">${formatTime(msg.created_at)}</div>`;
+            messagesContainer.appendChild(msgEl);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        })
+        .subscribe();
+}
+
+async function sendMessage() {
+    if (!currentConversation || !messageInput.value.trim()) return;
+
+    const content = messageInput.value.trim();
+    messageInput.value = '';
+
+    await supabase.from('nd_messages').insert({
+        conversation_id: currentConversation,
+        sender_id: currentUser.id,
+        content: content
+    });
+
+    // Update last message
+    await supabase.from('nd_conversations').update({
+        last_message: content,
+        last_message_at: new Date().toISOString()
+    }).eq('id', currentConversation);
+}
+
+// Event Listeners
+sendMessageBtn?.addEventListener('click', sendMessage);
+messageInput?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+});
+
+copyChatIdBtn?.addEventListener('click', () => {
+    navigator.clipboard.writeText(userProfile?.chat_id || '');
+    copyChatIdBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg>';
+    setTimeout(() => {
+        copyChatIdBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    }, 2000);
+});
+
+newChatBtn?.addEventListener('click', () => {
+    newChatModal.style.display = 'flex';
+    searchUserIdInput.value = '';
+    searchUserResult.innerHTML = '';
+    searchUserResult.className = 'search-result';
+    startChatBtn.disabled = true;
+    foundUserId = null;
+});
+
+closeModalBtn?.addEventListener('click', () => {
+    newChatModal.style.display = 'none';
+});
+
+searchUserIdInput?.addEventListener('input', async (e) => {
+    const chatId = e.target.value.toUpperCase().trim();
+    foundUserId = null;
+    startChatBtn.disabled = true;
+
+    if (chatId.length !== 8) {
+        searchUserResult.innerHTML = '';
+        return;
+    }
+
+    if (chatId === userProfile?.chat_id) {
+        searchUserResult.innerHTML = 'Cannot chat with yourself';
+        searchUserResult.className = 'search-result not-found';
+        return;
+    }
+
+    const { data } = await supabase.from('nd_users').select('id, chat_id').eq('chat_id', chatId).single();
+
+    if (data) {
+        foundUserId = data.id;
+        searchUserResult.innerHTML = `✓ User found: ${data.chat_id}`;
+        searchUserResult.className = 'search-result found';
+        startChatBtn.disabled = false;
+    } else {
+        searchUserResult.innerHTML = '✗ User not found';
+        searchUserResult.className = 'search-result not-found';
+    }
+});
+
+startChatBtn?.addEventListener('click', async () => {
+    if (!foundUserId) return;
+
+    // Check if conversation exists
+    const { data: existing } = await supabase
+        .from('nd_conversations')
+        .select('*')
+        .or(`and(user1_id.eq.${currentUser.id},user2_id.eq.${foundUserId}),and(user1_id.eq.${foundUserId},user2_id.eq.${currentUser.id})`)
+        .single();
+
+    if (existing) {
+        newChatModal.style.display = 'none';
+        const { data: partner } = await supabase.from('nd_users').select('chat_id').eq('id', foundUserId).single();
+        openChat(existing.id, partner?.chat_id);
+        return;
+    }
+
+    // Create new conversation
+    const { data: newConv, error } = await supabase
+        .from('nd_conversations')
+        .insert({
+            user1_id: currentUser.id,
+            user2_id: foundUserId
+        })
+        .select()
+        .single();
+
+    if (error) {
+        searchUserResult.innerHTML = 'Error creating chat';
+        searchUserResult.className = 'search-result not-found';
+        return;
+    }
+
+    newChatModal.style.display = 'none';
+    await loadConversations();
+    const { data: partner } = await supabase.from('nd_users').select('chat_id').eq('id', foundUserId).single();
+    openChat(newConv.id, partner?.chat_id);
+});
 
 // Initialize
 initApp();

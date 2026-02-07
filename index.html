@@ -98,6 +98,12 @@
                         </svg>
                         <span>History</span>
                     </button>
+                    <button class="nav-link" data-page="chat">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        <span>Chat</span>
+                    </button>
                     <button class="nav-link" data-page="admin" id="admin-nav-btn" style="display: none;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 20h9" />
@@ -164,6 +170,93 @@
                     <div id="history-loading" class="loading-state" style="display: none;">
                         <div class="spinner"></div>
                         <p>Loading history...</p>
+                    </div>
+                </section>
+
+                <!-- Chat Section -->
+                <section id="chat-section" class="section">
+                    <div class="chat-container">
+                        <!-- Left Sidebar -->
+                        <div class="chat-sidebar">
+                            <div class="chat-sidebar-header">
+                                <div class="my-chat-id">
+                                    <span class="id-label">Your ID:</span>
+                                    <span id="my-chat-id" class="id-value">Loading...</span>
+                                    <button id="copy-chat-id" class="btn-icon" title="Copy ID">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" />
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <button id="new-chat-btn" class="btn btn-primary btn-sm">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="5" x2="12" y2="19" />
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg>
+                                    New Chat
+                                </button>
+                            </div>
+                            <div id="conversations-list" class="conversations-list">
+                                <div class="no-chats">
+                                    <p>No chats yet</p>
+                                    <p class="hint">Click "New Chat" to start</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Chat Panel -->
+                        <div class="chat-panel">
+                            <div id="chat-welcome" class="chat-welcome">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                </svg>
+                                <h3>Anonymous Chat</h3>
+                                <p>Select a chat or start a new one</p>
+                                <p class="hint">Share your ID to receive messages</p>
+                            </div>
+                            <div id="chat-active" class="chat-active" style="display: none;">
+                                <div class="chat-header">
+                                    <span id="chat-partner-id">AB12CD34</span>
+                                </div>
+                                <div id="messages-container" class="messages-container"></div>
+                                <div class="chat-input-area">
+                                    <input type="text" id="message-input" placeholder="Type a message..."
+                                        autocomplete="off">
+                                    <button id="send-message-btn" class="btn btn-primary">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="22" y1="2" x2="11" y2="13" />
+                                            <polygon points="22,2 15,22 11,13 2,9" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New Chat Modal -->
+                    <div id="new-chat-modal" class="modal" style="display: none;">
+                        <div class="modal-content glass-card">
+                            <div class="modal-header">
+                                <h3>Start New Chat</h3>
+                                <button id="close-modal-btn" class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="18" y1="6" x2="6" y2="18" />
+                                        <line x1="6" y1="6" x2="18" y2="18" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="search-user-id">Enter User ID</label>
+                                    <input type="text" id="search-user-id" placeholder="E.g. AB12CD34" maxlength="8">
+                                </div>
+                                <div id="search-user-result" class="search-result"></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button id="start-chat-btn" class="btn btn-primary" disabled>Start Chat</button>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
