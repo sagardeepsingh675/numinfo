@@ -1175,7 +1175,9 @@ select option {
 .chat-container {
     display: grid;
     grid-template-columns: 320px 1fr;
-    height: calc(100vh - 180px);
+    height: calc(100vh - 200px);
+    min-height: 400px;
+    max-height: calc(100vh - 150px);
     background: var(--bg-glass);
     border: 1px solid var(--border-glass);
     border-radius: var(--radius-xl);
@@ -1317,6 +1319,8 @@ select option {
 .chat-panel {
     display: flex;
     flex-direction: column;
+    height: 100%;
+    overflow: hidden;
 }
 
 .chat-welcome {
@@ -1349,9 +1353,10 @@ select option {
 }
 
 .chat-active {
-    display: flex;
+    display: none;
     flex-direction: column;
     height: 100%;
+    overflow: hidden;
 }
 
 .chat-header {
@@ -1416,6 +1421,8 @@ select option {
     padding: 16px 20px;
     border-top: 1px solid var(--border-glass);
     background: rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+    margin-top: auto;
 }
 
 #message-input {
