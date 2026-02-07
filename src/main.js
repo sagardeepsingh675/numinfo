@@ -54,6 +54,8 @@ const usersList = document.getElementById('users-list');
 const logsList = document.getElementById('logs-list');
 
 // ===== Initialize App =====
+const loadingScreen = document.getElementById('loading-screen');
+
 async function initApp() {
     const { data: { session } } = await supabase.auth.getSession();
 
@@ -64,6 +66,9 @@ async function initApp() {
     } else {
         showLogin();
     }
+
+    // Hide loading screen after session check
+    loadingScreen?.classList.add('hidden');
 
     // Auth state listener - only handle actual sign in/out, not session refresh
     supabase.auth.onAuthStateChange(async (event, session) => {
