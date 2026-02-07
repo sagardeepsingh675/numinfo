@@ -603,6 +603,8 @@ const closeModalBtn = document.getElementById('close-modal-btn');
 const searchUserIdInput = document.getElementById('search-user-id');
 const searchUserResult = document.getElementById('search-user-result');
 const startChatBtn = document.getElementById('start-chat-btn');
+const backToChatsBtn = document.getElementById('back-to-chats');
+const chatSidebar = document.querySelector('.chat-sidebar');
 
 let foundUserId = null;
 
@@ -684,6 +686,11 @@ async function openChat(convId, partnerChatId) {
     // Mark conversation as active
     document.querySelectorAll('.conversation-item').forEach(c => c.classList.remove('active'));
     document.querySelector(`[data-conv-id="${convId}"]`)?.classList.add('active');
+
+    // Hide sidebar on mobile
+    if (window.innerWidth <= 768) {
+        chatSidebar?.classList.add('hidden');
+    }
 
     // Load messages
     await loadMessages(convId);
@@ -770,6 +777,14 @@ copyChatIdBtn?.addEventListener('click', () => {
     setTimeout(() => {
         copyChatIdBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
     }, 2000);
+});
+
+// Mobile back button
+backToChatsBtn?.addEventListener('click', () => {
+    chatSidebar?.classList.remove('hidden');
+    chatActive.style.display = 'none';
+    chatWelcome.style.display = 'flex';
+    currentConversation = null;
 });
 
 newChatBtn?.addEventListener('click', () => {
