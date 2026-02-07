@@ -1,31 +1,31 @@
-/* ===== CSS Variables ===== */
+/* ===== CSS Variables - XMAT Modern Theme ===== */
 :root {
-    --primary: #6366f1;
-    --primary-dark: #4f46e5;
-    --primary-light: #818cf8;
-    --secondary: #22d3ee;
-    --accent: #f472b6;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --bg-dark: #0f0f23;
-    --bg-darker: #070714;
-    --bg-card: rgba(15, 15, 35, 0.8);
-    --bg-glass: rgba(255, 255, 255, 0.05);
-    --border-glass: rgba(255, 255, 255, 0.1);
-    --text-primary: #ffffff;
-    --text-secondary: #a1a1aa;
-    --text-muted: #71717a;
-    --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-    --gradient-accent: linear-gradient(135deg, #22d3ee 0%, #6366f1 100%);
-    --shadow-glow: 0 0 60px rgba(99, 102, 241, 0.3);
-    --shadow-card: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    --primary: #00d4aa;
+    --primary-dark: #00b894;
+    --primary-light: #55efc4;
+    --secondary: #74b9ff;
+    --accent: #fd79a8;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #ff7675;
+    --bg-dark: #1a1a2e;
+    --bg-darker: #16213e;
+    --bg-card: rgba(22, 33, 62, 0.95);
+    --bg-glass: rgba(255, 255, 255, 0.03);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --text-primary: #f8f9fa;
+    --text-secondary: #b2bec3;
+    --text-muted: #636e72;
+    --gradient-primary: linear-gradient(135deg, #00d4aa 0%, #00b894 100%);
+    --gradient-accent: linear-gradient(135deg, #00d4aa 0%, #74b9ff 100%);
+    --shadow-glow: 0 0 40px rgba(0, 212, 170, 0.2);
+    --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.3);
     --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 16px;
-    --radius-xl: 24px;
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --radius-xl: 20px;
+    --transition: all 0.2s ease;
 }
 
 /* ===== Reset & Base ===== */
@@ -179,14 +179,26 @@ body {
     color: white;
 }
 
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white;
+    text-transform: uppercase;
+}
+
 .logo-icon.small {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
 }
 
 .logo-icon.small svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
+}
+
+.logo-icon.small .logo-text {
+    font-size: 1rem;
 }
 
 .logo h1 {
