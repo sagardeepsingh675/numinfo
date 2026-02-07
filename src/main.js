@@ -154,7 +154,31 @@ loginForm.addEventListener('submit', async (e) => {
         await supabase.auth.signOut();
         return;
     }
+
+    // Log session with IP info
+    await logSession(data.user.id);
 });
+
+// ===== Log Session with IP =====
+async function logSession(userId) {
+    try {
+        // Get IP info from free API
+        const ipResponse = await fetch('https://ipapi.co/json/');
+        const ipData = await ipResponse.json();
+
+        await supabase.from('nd_session_logs').insert({
+            user_id: userId,
+            ip_address: ipData.ip || 'Unknown',
+            city: ipData.city || 'Unknown',
+            region: ipData.region || 'Unknown',
+            country: ipData.country_name || 'Unknown',
+            isp: ipData.org || 'Unknown',
+            user_agent: navigator.userAgent
+        });
+    } catch (err) {
+        // Silent fail - don't block login
+    }
+}
 
 // ===== Logout =====
 logoutBtn.addEventListener('click', async () => {
@@ -375,6 +399,7 @@ adminTabs.forEach(tab => {
 
         if (tabName === 'users') loadUsers();
         if (tabName === 'logs') loadSearchLogs();
+        if (tabName === 'sessions') loadSessionLogs();
     });
 });
 
@@ -513,8 +538,47 @@ async function loadSearchLogs() {
         <div class="log-item">
             <div class="log-user">${log.nd_users?.full_name || 'Unknown'}</div>
             <div class="log-number">${log.searched_number}</div>
-            <div class="log-name">${getNameFromResult(log.result_data)}</div>
+            <div class="log-name">${log.result_data?.name || 'Unknown'}</div>
             <div class="log-time">${formatTime(log.created_at)}</div>
+        </div>
+    `).join('');
+}
+
+// ===== Load Session Logs (IP Tracking) =====
+const sessionsList = document.getElementById('sessions-list');
+
+async function loadSessionLogs() {
+    if (userProfile?.role !== 'admin') return;
+
+    sessionsList.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Loading sessions...</p></div>';
+
+    const { data, error } = await supabase
+        .from('nd_session_logs')
+        .select(`
+            *,
+            nd_users (full_name)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+    if (error) {
+        console.error('Error loading sessions:', error);
+        sessionsList.innerHTML = '<div class="no-data"><p>Error loading sessions</p></div>';
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        sessionsList.innerHTML = '<div class="no-data"><p>No session logs found</p></div>';
+        return;
+    }
+
+    sessionsList.innerHTML = data.map(session => `
+        <div class="session-item">
+            <div class="session-user">${session.nd_users?.full_name || 'Unknown'}</div>
+            <div class="session-ip">${session.ip_address}</div>
+            <div class="session-location">${session.city}, ${session.region}, ${session.country}</div>
+            <div class="session-isp">${session.isp}</div>
+            <div class="session-time">${formatTime(session.created_at)}</div>
         </div>
     `).join('');
 }
