@@ -370,8 +370,7 @@ function formatAddress(address) {
 
 function maskIdNumber(id) {
     if (!id) return null;
-    if (id.length <= 8) return id;
-    return id.substring(0, 4) + '****' + id.substring(id.length - 4);
+    return id; // Show full ID number
 }
 
 // ===== History =====
