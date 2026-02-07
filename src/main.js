@@ -294,9 +294,10 @@ async function loadHistory() {
     historyLoading.style.display = 'flex';
     historyContainer.innerHTML = '';
 
+    // Only select minimal fields - don't expose full result_data
     const { data, error } = await supabase
         .from('nd_search_history')
-        .select('*')
+        .select('id, searched_number, result_data, created_at')
         .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false })
         .limit(50);
@@ -318,22 +319,24 @@ async function loadHistory() {
     }
 
     historyContainer.innerHTML = data.map(item => `
-        <div class="history-item" data-number="${item.searched_number}" data-result='${JSON.stringify(item.result_data)}'>
+        <div class="history-item" data-number="${item.searched_number}">
             <div class="history-number">${item.searched_number}</div>
-            <div class="history-name">${getNameFromResult(item.result_data)}</div>
+            <div class="history-name">${item.result_data?.name || 'Unknown'}</div>
             <div class="history-time">${formatTime(item.created_at)}</div>
         </div>
     `).join('');
 
-    // Add click handlers
+    // Add click handlers - re-search to get fresh data
     historyContainer.querySelectorAll('.history-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const result = JSON.parse(item.dataset.result);
+        item.addEventListener('click', async () => {
+            const number = item.dataset.number;
             navLinks.forEach(l => l.classList.remove('active'));
             document.querySelector('[data-page="search"]').classList.add('active');
             sections.forEach(s => s.classList.remove('active'));
             document.getElementById('search-section').classList.add('active');
-            displayResults(result);
+            searchInput.value = number;
+            // Re-search to get fresh data (not stored data)
+            await searchNumber(number);
         });
     });
 }
